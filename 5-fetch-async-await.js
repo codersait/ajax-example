@@ -6,10 +6,22 @@ const resource = './mock.json';
 
 button.addEventListener('click', async () => {
   try {
-    const data = await getData(resource)
+    const response = await fetch(resource)
+    if (response.status !== 200) {
+      // Throwing your own errors (exceptions)
+      throw {
+        status: response.status,
+        statusText: response.statusText
+      }
+
+    }
+    console.log(response);
+    const data = await response.json()
     displayData(data)
   } catch (err) {
+    console.log(err);
     msg.innerHTML = `statusCode: ${err.status} <br> statusText: ${err.statusText}`;
+
   }
 });
 
@@ -26,25 +38,4 @@ function displayData(data) {
                        </tr>`)
     })
 
-}
-
-function getData(resource) {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.addEventListener('readystatechange', () => {
-      if (request.readyState !== 4) return
-      if (request.status === 200) {
-        const data = request.responseText
-        const people = JSON.parse(data);
-        resolve(people)
-      } else {
-        reject({
-          status: request.status,
-          statusText: request.statusText
-        })
-      }
-    })
-    request.open('GET', resource)
-    request.send()
-  })
 }
